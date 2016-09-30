@@ -21,45 +21,17 @@ main_setup:
     rst     20h
     .db     "Key / Function",$ff
     .db     "---   -----------------",$ff
-    .db     "1.    Keyboard test",$ff
-    .db     "2.    Memory test",$ff
-    .db     "3.    IO test",$ff
-    .db     "4.    Page 1",$ff
-    .db     "5.    Page 2",$ff
+    .db     "1.    Load",$ff
     .db     "---   -----------------",$ff
     .db     $ff
 
 main_main:
     rst     28h
-    .dw     '1',test_kb_setup
-    .dw     '2',test_mem_setup
-    .dw     '3',test_io_setup
-    .dw     '4',gop1
-    .dw     '5',gop2
+    .dw     '1',mod_load
     .dw     $ff
     jr      main_main
 
-gop1:
-	ld		a,1
-	jr		{+}
-
-gop2:
-	ld		a,2
-+:
-	ld		hl,gopX
-	ld		de,$7ff0
-	ld		bc,$10
-	ldir
-	ld		($7ff1),a
-	jp		$7ff0
-
-gopX:
-	ld		a,0
-	out		($7f),a
-	jp		0
-
 ;----------------------------------------------------------------
-
 
 cls:
     xor     a
@@ -161,12 +133,8 @@ specialjump:
 
 ;----------------------------------------------------------------
 
-
-#include "test_mem.asm"
-#include "test_kb.asm"
-#include "test_io.asm"
-
-
     .asciimap ' ',' '
+
+#include "mod_load.asm"
 
 	.fill $4000-$
