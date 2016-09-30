@@ -1,0 +1,12 @@
+#!/bin/sh
+
+cd tools
+mcs mkcart.cs
+cd ../menu
+mono brass.exe m5menu.asm
+cd ../testrom
+mono brass.exe M5_Test.asm
+cd ../cart-binaries
+mono ../tools/mkcart.exe list.txt ../big.bin
+cd ..
+ls -la big.bin
