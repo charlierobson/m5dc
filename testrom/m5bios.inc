@@ -4,6 +4,23 @@
 ; $Id: m5bios.def,v 1.1 2009/06/05 05:57:44 stefano Exp $
 ;
 
+COL_BLACK   .equ    $1
+COL_MGREEN  .equ    $2
+COL_LGREEN  .equ    $3
+COL_DBLUE   .equ    $4
+COL_LBLUE   .equ    $5
+COL_DRED    .equ    $6
+COL_CYAN    .equ    $7
+COL_MRED    .equ    $8
+COL_LRED    .equ    $9
+COL_DYELLOW .equ    $a
+COL_LYELLOW .equ    $b
+COL_DGREEN  .equ    $c
+COL_MAGENTA .equ    $d
+COL_GRAY    .equ    $e
+COL_WHITE   .equ    $f
+
+
 ; General routines
 
 RESET   .equ $0000

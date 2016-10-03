@@ -1,0 +1,14 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "0.1.0",
+    "windows": {
+        "command": "brass.exe"
+    },
+    "linux": {
+        "command": "mono brass.exe"
+    },
+    "isShellCommand": true,
+    "args": ["m5_test.asm", "-l", "m5_test.html"],
+    "showOutput": "always"
+}

@@ -1,9 +1,8 @@
 ; Compile with BRASS
 ; http://www.benryves.com/bin/brass/
 
-    .asciimap ' ',0
-
 #include "m5bios.inc"
+#include "einsdein.inc"
 
     .org    $2000
 
@@ -12,75 +11,31 @@
     .dw     main_setup      ; start address
     .dw     $2e             ; IPL address
     jp      drawscreen      ; RST 20h (RST 4)
-    jp      specialjump     ; RST 28h (RST 5)
+    jp      drawtext        ; RST 28h (RST 5)
 
 ;----------------------------------------------------------------
 
 
 main_setup:
     rst     20h
-    .db     "Key / Function",$ff
-    .db     "---   -----------------",$ff
-    .db     "1.    Load",$ff
-    .db     "---   -----------------",$ff
-    .db     $ff
+    .db     "Key / Function",13
+    .db     "---   -----------------",13
+    .db     "1.    Load",13
+    .db     "2.    Dir",13
+    .db     "---   -----------------",13
+    .db     0
+    ld      b,1
+    call    STBCOL
 
 main_main:
-    rst     28h
+    call    specialjump
     .dw     '1',mod_load
+    .dw     '2',mod_dir
     .dw     $ff
     jr      main_main
 
-;----------------------------------------------------------------
-
-cls:
-    xor     a
-
-clstochar:
-    ld      hl,$3800
-    ld      de,$40
-    ld      b,11
--:
-    call    clearline
-    add     hl,de
-    djnz    {-}
-
-    ; fall through
-
-clearline:
-    push    bc
-    push    af
-    call    SETWRT
-    pop     af
-    ld      b,$20
--:
-    out     ($10),a
-    djnz    {-}
-    pop     bc
-    ret
-
 
 ;----------------------------------------------------------------
-
-
-println:
-    push    hl
-    ex      de,hl
-    call    SETWRT
-    ld      de,$40
-    add     hl,de
-    ex      de,hl
-    pop     hl
-    jr      {+}
--:    
-    out     ($10),a
-    inc     hl
-+:
-    ld      a,(hl)
-    cp      $ff
-    jr      nz,{-}
-    inc     hl
-    ret    
 
 
 ;----------------------------------------------------------------
@@ -88,26 +43,68 @@ println:
 ; RST 20h
 
 drawscreen:
-    call    cls
-    ld      de,$3800
-    pop     hl
--:
-    call    println
-    ld      a,(hl)
-    bit     7,a
-    jr      z,{-}
+    call    CLRSC
 
+drawtext:
+    pop     hl
+    jr      {+}
+-:
+    call    DSPCHA
+    inc     hl
++:
+    ld      a,(hl)
+    or      a
+    jr      nz,{-}
     inc     hl
     jp      (hl)
 
+;----------------------------------------------------------------
 
+PRHEXA:
+    push    af
+    srl     a
+    srl     a
+    srl     a
+    srl     a
+    call    {+}
+    pop     af
++:
+    and     15
+    add     a,$90
+    daa
+    adc     a,$40
+    daa
++:
+    jp    DSPCHA
+
+PRDECA:
+    ld      l,a
+    ld      h,0
+    jr      prdec8bit
+
+PRDECHL:
+	ld	    bc,-10000
+	call	{+}
+	ld	    bc,-1000
+	call	{+}
+prdec8bit:
+	ld	    bc,-100
+	call	{+}
+	ld	    bc,-10
+	call	{+}
+	ld	    bc,-1
++:
+    ld	    a,'0'-1
+-:	inc	    a
+	add	    hl,bc
+	jr	    c,{-}
+	sbc	    hl,bc
+    jp      DSPCHA
 
 ;----------------------------------------------------------------
 
-; RST 28h
-
 specialjump:
-    call    WTKDTC          ; read key
+    call    ACECHI          ; read key
     pop     hl              ; get pointer to key/jump table
 -:
     cp      (hl)            ; matched key?
@@ -133,8 +130,37 @@ specialjump:
 
 ;----------------------------------------------------------------
 
-    .asciimap ' ',' '
+sendcmd:
+    out     (IOP_WRITECMD),a
+-:
+    in      a,(IOP_STATUS)
+    and     4
+    jr      nz,{-}
+
+    in      a,(IOP_READ)
+    and     a
+    ret
+
+;----------------------------------------------------------------
+
+
+error:
+    push    af
+    rst     28h
+    .db     13,"Error: ",0
+    pop     af
+    call    PRDECA
+
+keyandback:
+    rst     28h
+    .db     13,"[press a key]",0
+    call    ACECHI
+    jp      main_setup
+
+;----------------------------------------------------------------
+
 
 #include "mod_load.asm"
+#include "mod_dir.asm"
 
 	.fill $4000-$
