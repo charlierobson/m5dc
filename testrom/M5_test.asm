@@ -22,6 +22,7 @@ main_setup:
     .db     "---   -----------------",13
     .db     "1.    Load",13
     .db     "2.    Dir",13
+    .db     "3.    Test",13
     .db     "---   -----------------",13
     .db     0
     ld      b,1
@@ -31,6 +32,7 @@ main_main:
     call    specialjump
     .dw     '1',mod_load
     .dw     '2',mod_dir
+    .dw     '3',mod_test
     .dw     $ff
     jr      main_main
 
@@ -162,5 +164,6 @@ keyandback:
 
 #include "mod_load.asm"
 #include "mod_dir.asm"
+#include "mod_test.asm"
 
 	.fill $4000-$
