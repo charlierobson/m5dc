@@ -16,14 +16,7 @@ curline     .equ $77f2
 prevkey     .equ $77f4
 iteminfo    .equ $7800
 
-    .org    $2000
-
-    ; cart header
-    .db     0               ; cart identifier
-    .dw     main_setup      ; start address
-    .dw     $2e             ; IPL address
-    jp      drawscreen      ; RST 20h (RST 4)
-    jp      println         ; RST 28h (RST 5)
+    .org    $8000
 
 ;----------------------------------------------------------------
 
@@ -44,7 +37,7 @@ main_setup:
     call    $0C97
 
 main_main:
-    rst     20h
+    call drawscreen
 	;        --------========--------========
     .db     "M5-Multi II  By Sir Morris & Ola",$ff     ; <-- feel free to change this!
     .db     $ff
@@ -60,7 +53,7 @@ main_main:
     ld      (linebuf+29),a
 
     ld      hl,linebuf
-    rst     28h
+    call println
 
     ld      ix,prevkey
 
@@ -138,7 +131,7 @@ printpage:
     call    copystring
 
     ld      hl,linebuf
-    rst     28h
+    call println
 
     pop     hl
     inc     hl
@@ -308,7 +301,7 @@ rominfo:
 
     ; this menu data is generated along with the ROM binary using the 'mkcart' tool.
 
-#include "..\cart-binaries\big.asm"
+#include "../../m5multi/cart-binaries/big.asm"
     .db     $ff,$ff ; end of menu data
 
     .align  256
