@@ -6,9 +6,6 @@
 
 lineCount   .equ    $C000
 
-rootstr:
-    .db     "/",0
-
 mod_dir:
     ld      b,COL_DBLUE
     call    STBCOL
@@ -16,10 +13,6 @@ mod_dir:
 
 	ld	    a,CMD_BUFFER_PTR_RESET
 	call	sendcmd
-
-;   ld      hl,rootstr
-;	ld	    bc,$C000+IOP_WRITEDAT
-;	otir
 
 	ld		a,0
 	out		(IOP_WRITEDAT),a
@@ -58,8 +51,7 @@ nextEntry:
 	.db		"PRESS A KEY", 0
 
 	call	ACECHI
-    or      32
-	cp		'Q'
+	cp		'q'
 	jp		z,main_setup
 
 	xor		a
@@ -89,6 +81,8 @@ printEntry:
 	di
 
 -:  in      a,(IOP_READ)
+	or		32
+	and		127
     ld      (hl),a
     inc     hl
     djnz    {-}

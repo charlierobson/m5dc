@@ -20,7 +20,7 @@ mod_test:
     .db     "6.    CMD_BUFFER_READ",13
     .db     "7.    Get",13
     .db     "8.    CMD_DBG_SHOW_BP",13
-    .db     "Q.    Quit",13
+    .db     "Q.    Return",13
     .db     "---   -----------------",13
     .db     0
 
