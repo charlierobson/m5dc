@@ -17,13 +17,16 @@ mod_dir:
 	ld	    a,CMD_BUFFER_PTR_RESET
 	call	sendcmd
 
-    ld      hl,rootstr
-	ld	    bc,$C000+IOP_WRITEDAT
-	otir
+;    ld      hl,rootstr
+;	ld	    bc,$C000+IOP_WRITEDAT
+;	otir
+
+	ld		a,0
+	out		(IOP_WRITEDAT),a
 
 	ld	    a,CMD_DIR_READ_BEGIN
 	call	sendcmd
-	jp	    z,error
+	jp	    nz,error
 
 	; sink the confusing drive spec '0:'
 	in	    a,(IOP_READ)

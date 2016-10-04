@@ -4,7 +4,7 @@
 *.s#?
 *.l#?
 *.html
-v2.0/xilinx/*
+xilinx/*
 *.zip
 *.lck
 *.exe

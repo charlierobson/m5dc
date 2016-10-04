@@ -33,7 +33,7 @@ test_loop:
     .dw     '5',mod_put
     .dw     '6',mod_cmd_buffer_read
     .dw     '7',mod_get
-    .dw     '6',mod_cmd_dbg_show_bp
+    .dw     '8',mod_cmd_dbg_show_bp
     .dw     'q',main_setup
     .dw     $ff
     jr      test_loop
@@ -81,7 +81,7 @@ mod_put:
     jp      test_loop
 
 mod_get:
-    in      a,(IOP_WRITEDAT)
+    in      a,(IOP_READ)
     call    PRHEXA
     ld      a,32
     call    DSPCHA

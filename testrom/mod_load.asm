@@ -26,7 +26,7 @@ mod_load:
 
     ; send filename
     ld      a,CMD_BUFFER_PTR_RESET
-    out     (IOP_WRITECMD),a
+    call    sendcmd
 
     ld      hl,fnna
     ld      bc,$4000+IOP_WRITEDAT
@@ -56,18 +56,31 @@ mod_load:
     call    sendcmd
     jp      nz,error
 
+    push    hl
+
     ; read next 512 bytes
     ld      bc,$0000+IOP_READ
     inir
     inir
 
+    pop     de
     push    hl
-    ld      a,'*'
+
+    ld      bc,$200
+    call    crc16
+
+    call    PRHEX
+    ld      a,32
     call    DSPCHA
+
     pop     hl
 
     pop     bc
     djnz    {-}
+
+    rst     28h
+    .db     13,"[press a key to execute]",0
+    call    ACECHI
 
     jp      $8000
 
@@ -78,3 +91,40 @@ noeinsdein:
     rst     20h
     .db     "No einSDein found",0
     jp      keyandback
+
+
+
+
+
+	; in: de = data ptr, bc = data length
+	; out: hl = crc16-ccitt (poly 1021)
+
+crc16:
+	ld	    hl,FFFFh
+--:
+    push    bc
+	ld	    a,(de)
+	inc	    de
+	xor	    h
+	ld	    h,a
+	ld	    b,8
+-:
+	add	    hl,hl
+	jr	    nc,{+}
+
+	ld	    a,h
+	xor	    10h
+	ld	    h,a
+	ld	    a,l
+	xor	    21h
+	ld      l,a
++:
+	djnz	{-}
+
+    pop     bc
+	dec	    bc
+    ld      a,b
+    or      c
+	jr	    nz,{--}
+
+    ret

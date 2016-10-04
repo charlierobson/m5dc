@@ -62,6 +62,13 @@ drawtext:
 
 ;----------------------------------------------------------------
 
+PRHEX:
+    push    hl
+    ld      a,h
+    call    PRHEXA
+    pop     hl
+    ld      a,l
+
 PRHEXA:
     push    af
     srl     a
