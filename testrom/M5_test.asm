@@ -110,6 +110,15 @@ prdec8bit:
 	sbc	    hl,bc
     jp      DSPCHA
 
+
+PRSPC:
+    ld      a,32
+    jp      DSPCHA
+
+PRCRLF:
+    ld      a,13
+    jp      DSPCHA
+
 ;----------------------------------------------------------------
 
 specialjump:

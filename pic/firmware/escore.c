@@ -232,6 +232,14 @@ MAINFN
 					crc = crc16_ccitt((const unsigned char*)ioBuffer, 512, -1);
 					Serial_printf("  crc=%04x\r\n", crc);
 
+					{
+						int i;
+						for(i = 0; i < 256; ++i)
+						{
+							Serial_printHex(ioBuffer[i]);
+							if ((i & 15)==15) Serial_NL();
+						}
+					}
 					mode = MODE_OUTPUT;
 					bp = ioBuffer;
 				}

@@ -430,6 +430,10 @@ void TestMode()
 	}
 }
 
+extern unsigned char* testvector1;
+extern unsigned char* testvector2;
+extern unsigned short crc16_ccitt(const unsigned char *buf, int len, unsigned short crc);
+
 int main(void)
 {
 	SYSTEMConfig(GetSystemClock(), SYS_CFG_WAIT_STATES | SYS_CFG_PCACHE);
@@ -454,10 +458,16 @@ int main(void)
 	UARTSetDataRate(UARTNUM, GetPeripheralClock(), BaudRate); 
 	UARTEnable(UARTNUM, UART_ENABLE_FLAGS(UART_PERIPHERAL | UART_TX));   
 
-	Serial_printLineImpl("TRSD V1.00\r\n");
+	Serial_printLineImpl("SD-X V0.91\r\n");
 #ifndef WANT_SERIAL
 	Serial_printLineImpl("<Silent>");
 #endif
+
+	{
+		unsigned short crc1 = crc16_ccitt(testvector1, 9, -1);
+		unsigned short crc2 = crc16_ccitt(testvector2, 256, -1);
+		Serial.printf("tv1: %04x  tv2: %04x\r\n", crc1, crc2);
+	}
 
 	userFile.fs = NULL;
 

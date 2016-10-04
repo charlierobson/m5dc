@@ -17,7 +17,7 @@ mod_dir:
 	ld	    a,CMD_BUFFER_PTR_RESET
 	call	sendcmd
 
-;    ld      hl,rootstr
+;   ld      hl,rootstr
 ;	ld	    bc,$C000+IOP_WRITEDAT
 ;	otir
 
@@ -86,10 +86,17 @@ printEntry:
 	ld		hl,$c010
 	push	hl
 
+	di
+
 -:  in      a,(IOP_READ)
     ld      (hl),a
     inc     hl
     djnz    {-}
+
+	ei
+
+	xor		a
+	ld		(hl),a
 
 	pop		hl
 	call	DSPLTA
