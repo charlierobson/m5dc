@@ -4,7 +4,9 @@
 #include "m5bios.inc"
 #include "einsdein.inc"
 
-    .org    $2000
+FLG	.equ	$72ff
+
+    .org    $7800
 
     ; cart header
     .db     0               ; cart identifier
@@ -14,7 +16,6 @@
     jp      drawtext        ; RST 28h (RST 5)
 
 ;----------------------------------------------------------------
-
 
 main_setup:
     rst     20h

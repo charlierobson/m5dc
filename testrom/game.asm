@@ -4,14 +4,17 @@
 #include "m5bios.inc"
 #include "einsdein.inc"
 
-    .org    $8000
+    .org    $E000
 
 main_setup:
     ld      b,1
     call    STBCOL
     call    CLRSC
     call    STRPRT
-    .db     "Hello, world!",13,0
+	;        --------------------------------
+    .db     13,13,"Hello, world! I was loaded from SD card!",13,13
+	.db		"Press a key to return to ROM "
+	.db		0
 
     call    ACECHI
     jp      0
