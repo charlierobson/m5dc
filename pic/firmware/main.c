@@ -431,7 +431,6 @@ void TestMode()
 }
 
 extern unsigned char* testvector1;
-extern unsigned char* testvector2;
 extern unsigned short crc16_ccitt(const unsigned char *buf, int len, unsigned short crc);
 
 int main(void)
@@ -464,9 +463,15 @@ int main(void)
 #endif
 
 	{
-		unsigned short crc1 = crc16_ccitt(testvector1, 9, -1);
-		unsigned short crc2 = crc16_ccitt(testvector2, 256, -1);
-		Serial.printf("tv1: %04x  tv2: %04x\r\n", crc1, crc2);
+		unsigned short crc1;
+		unsigned short crc2, i;
+
+		Serial_print("1");
+		for(i = 0; i < 256; ++i) ioBuffer[i] = i;
+
+		Serial_print("3");
+		crc2 = crc16_ccitt((BYTE*)ioBuffer, 256, -1);
+		Serial_printf("tv1: %04x  tv2: %04x\r\n", crc1, crc2);
 	}
 
 	userFile.fs = NULL;

@@ -102,7 +102,9 @@ ld_post:
     .db     "x - execute code at $8000",13
     .db     "1 - dump $8000",13
     .db     "2 - dump $8200",13
-    .db     "3 - dump $8400",13
+    .db     "3 - fill $8000",13
+    .db     "4 - xor $8000",13
+    .db     "q - return",13
     .db     0
 
 -:
@@ -110,11 +112,36 @@ ld_post:
     .dw     'x',$8000
     .dw     '1',dump8000
     .dw     '2',dump8100
+    .dw     '3',fill8000
+    .dw     '4',xor8000
+    .dw     'q',main_setup
     .dw     $ff
     jr      {-}
 
     jp      $8000
 
+fill8000:
+    ld      hl,$8000
+    xor     a
+    ld      b,a
+-:
+    ld      (hl),a
+    inc     a
+    inc     hl
+    djnz    {-}
+    jp      ld_post
+    
+xor8000:
+    ld      hl,$8000
+    xor     a
+    ld      b,a
+-:
+    ld      a,(hl)
+    xor     $ff
+    ld      (hl),a
+    inc     hl
+    djnz    {-}
+    jp      ld_post
 
 dump8000:
     ld      hl,$8000

@@ -18,6 +18,7 @@ extern void TestMode();
 
 MAINFN
 {
+	static int gfbytes;
 	UINT numRead;
 	BYTE status, data;
 
@@ -178,6 +179,8 @@ MAINFN
 					}
 					if (error) { reportOKFail(error); break; }
 
+					gfbytes = 0;
+
 					// first 6 bytes of GNE file are LOADADDRESS, LENGTH, EXEC ADDRESS
 					error = reportOKFail(f_read(&userFile, ioBuffer, 6, &numRead));
 
@@ -232,6 +235,7 @@ MAINFN
 					crc = crc16_ccitt((const unsigned char*)ioBuffer, 512, -1);
 					Serial_printf("  crc=%04x\r\n", crc);
 
+					if (gfbytes < 1024)
 					{
 						int i;
 						for(i = 0; i < 256; ++i)
@@ -240,6 +244,7 @@ MAINFN
 							if ((i & 15)==15) Serial_NL();
 						}
 					}
+					gfbytes += 512;
 					mode = MODE_OUTPUT;
 					bp = ioBuffer;
 				}
