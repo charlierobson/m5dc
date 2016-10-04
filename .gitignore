@@ -19,3 +19,9 @@ gerber/
 big.txt
 big.bin
 testrom/M5_test.bin
+pic/firmware/intermediate
+*.hex
+*.map
+*.mcs
+*.o
+*.d

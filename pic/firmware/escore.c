@@ -222,14 +222,15 @@ MAINFN
 				// read 512b from file
 				case CMD_FILE_READ_512:
 				{
-					short crc;
+					unsigned short crc;
+					memset(ioBuffer, 0, 512);
 
 					Serial_print("File read 512");
 
 					error = reportOKFail(f_read(&userFile, ioBuffer, 512, &numRead));
 
-					crc = crc16_ccitt(ioBuffer, 512, -1);
-					Serial_printf("  crc=%04x", crc);
+					crc = crc16_ccitt((const unsigned char*)ioBuffer, 512, -1);
+					Serial_printf("  crc=%04x\r\n", crc);
 
 					mode = MODE_OUTPUT;
 					bp = ioBuffer;
@@ -421,7 +422,7 @@ MAINFN
 
 				case CMD_DBG_SHOW_BP:
 				{
-					Serial_printf("%d bytes in buffer\r\n", ioBuffer - bp);
+					Serial_printf("%d bytes in buffer\r\n", bp - ioBuffer);
 					error = 123;
 					strcpy(ioBuffer, "1234567890");
 					mode = MODE_OUTPUT;

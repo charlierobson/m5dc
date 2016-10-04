@@ -85,7 +85,12 @@ printEntry:
 	ld		bc,$2000+IOP_READ
 	ld		hl,$c010
 	push	hl
-	inir
+
+-:  in      a,(IOP_READ)
+    ld      (hl),a
+    inc     hl
+    djnz    {-}
+
 	pop		hl
 	call	DSPLTA
 	; falls through to newline

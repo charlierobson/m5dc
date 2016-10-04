@@ -20,7 +20,6 @@ del "%HEX%"
 %COMPILER% -x c -c "pp.c" -o"%IMED%\pp.o" -MMD -MF"%IMED%\pp.d" -I"." -I".."  -g %DEFINES%
 %COMPILER% -x c -c "errmsgs.c" -o"%IMED%\errmsgs.o" -MMD -MF"%IMED%\errmsgs.d" -I"." -I".."  -g %DEFINES%
 %COMPILER% -x c -c "serial.c" -o"%IMED%\serial.o" -MMD -MF"%IMED%\serial.d" -I"." -I".."  -g %DEFINES%
-rem %COMPILER% -x c -c "diskio.c" -o"%IMED%\diskio.o" -MMD -MF"%IMED%\diskio.d" -I"." -I".."  -g %DEFINES%
 %COMPILER% -x c -c "fatfs_mmc_spi.c" -o"%IMED%\fatfs_mmc_spi.o" -MMD -MF"%IMED%\fatfs_mmc_spi.d" -I"." -I".."  -g %DEFINES%
 %COMPILER% -x c -c "ff.c" -o"%IMED%\ff.o" -MMD -MF"%IMED%\ff.d" -I"." -I".."  -g %DEFINES%
 %COMPILER% -x c -c "main.c" -o"%IMED%\main.o" -MMD -MF"%IMED%\main.d" -I"." -I".."  -g %DEFINES%
@@ -34,6 +33,7 @@ rem %COMPILER% -x c -c "diskio.c" -o"%IMED%\diskio.o" -MMD -MF"%IMED%\diskio.d" 
 %COMPILER% -x c -c "escore.c" -o"%IMED%\escore.o" -MMD -MF"%IMED%\escore.d" -I"." -I".."  -g %DEFINES%
 %COMPILER% -x c -c "configfile.c" -o"%IMED%\configfile.o" -MMD -MF"%IMED%\configfile.d" -I"." -I".."  -g %DEFINES%
 %COMPILER% -x c -c "mrblobby.c" -o"%IMED%\mrblobby.o" -MMD -MF"%IMED%\mrblobby.d" -I"." -I".."  -g %DEFINES%
+%COMPILER% -x c -c "crc.c" -o"%IMED%\crc.o" -MMD -MF"%IMED%\crc.d" -I"." -I".."  -g %DEFINES%
 
 %COMPILER% "%IMED%\pp.o" "%IMED%\errmsgs.o" "%IMED%\serial.o" "%IMED%\fatfs_mmc_spi.o" "%IMED%\ff.o" "%IMED%\main.o" "%IMED%\timer.o" "%IMED%\lenval.o" "%IMED%\ports.o" "%IMED%\micro.o" "%IMED%\dirproc.o" "%IMED%\mrblobby.o" "%IMED%\dsk.o" "%IMED%\einstein.o" "%IMED%\escore.o" "%IMED%\configfile.o" -o"%ELF%" -Wl,--script="app_32MX150F128D.ld",--defsym=__MPLAB_BUILD=1,-Map="%MAP%",--cref,--warn-section-align
 

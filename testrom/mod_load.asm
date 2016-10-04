@@ -48,7 +48,7 @@ mod_load:
     ld      b,16
     ld      hl,$8000
 
--:
+ld_main:
     push    bc
 
     ; prepare next 512 bytes
@@ -58,10 +58,20 @@ mod_load:
 
     push    hl
 
+    di
+
     ; read next 512 bytes
     ld      bc,$0000+IOP_READ
-    inir
-    inir
+-:  in      a,(IOP_READ)
+    ld      (hl),a
+    inc     hl
+    djnz    {-}
+-:  in      a,(IOP_READ)
+    ld      (hl),a
+    inc     hl
+    djnz    {-}
+
+    ei
 
     pop     de
     push    hl
@@ -76,7 +86,7 @@ mod_load:
     pop     hl
 
     pop     bc
-    djnz    {-}
+    djnz   ld_main
 
     rst     28h
     .db     13,"[press a key to execute]",0
