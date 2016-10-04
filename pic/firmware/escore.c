@@ -12,6 +12,7 @@
 // READ/WRITE for files - does the disposition work the way it's expected to?
 // Is there an error returned by f_read if you attempt to read past EOF?
 
+extern unsigned short crc16_ccitt(const unsigned char *buf, int len, unsigned short crc);
 
 extern void TestMode();
 
@@ -26,8 +27,8 @@ MAINFN
 		// host has sent a byte.
 
 		mode = MODE_INPUT;
-
 		data = PPRead();
+
 		if ((status & PPSTAT_COMMAND) == 0)
 		{
 			// byte was marked as data
@@ -221,9 +222,14 @@ MAINFN
 				// read 512b from file
 				case CMD_FILE_READ_512:
 				{
+					short crc;
+
 					Serial_print("File read 512");
 
 					error = reportOKFail(f_read(&userFile, ioBuffer, 512, &numRead));
+
+					crc = crc16_ccitt(ioBuffer, 512, -1);
+					Serial_printf("  crc=%04x", crc);
 
 					mode = MODE_OUTPUT;
 					bp = ioBuffer;
