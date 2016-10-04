@@ -6,9 +6,12 @@
         "command": "brass.exe"
     },
     "linux": {
-        "command": "mono brass.exe"
+        "command": "mono Brass.exe"
+    },
+    "osx": {
+        "command": "mono Brass.exe"
     },
     "isShellCommand": true,
-    "args": ["m5_test.asm", "-l", "m5_test.html"],
+    "args": ["M5_test.asm", "-l", "M5_test.html"],
     "showOutput": "always"
 }
