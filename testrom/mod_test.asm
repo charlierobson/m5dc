@@ -9,7 +9,7 @@ mod_test:
     call    STBCOL
     call    CLRSC
 
-    rst     20h
+	call	drawscreen
     .db     "Key / Function",13
     .db     "---   -----------------",13
     .db     "1.    IOP_DETECT",13
@@ -20,7 +20,6 @@ mod_test:
     .db     "6.    CMD_BUFFER_READ",13
     .db     "7.    Get",13
     .db     "8.    CMD_DBG_SHOW_BP",13
-    .db     "Q.    Return",13
     .db     "---   -----------------",13
     .db     0
 
@@ -41,23 +40,20 @@ test_loop:
 mod_iopdetect:
     in      a,(IOP_DETECT)
     call    PRHEXA
-    ld      a,32
-    call    DSPCHA
+    call    PRSPC
     jp      test_loop
 
 mod_iopversion:
     in      a,(IOP_VERSION)
     call    PRHEXA
-    ld      a,32
-    call    DSPCHA
+    call    PRSPC
     jp      test_loop
 
 mod_cmd_interface_status:
     ld      a,CMD_INTERFACE_STATUS
     call    sendcmd
     call    PRHEXA
-    ld      a,32
-    call    DSPCHA
+    call    PRSPC
     jp      test_loop
 
 mod_cmd_buffer_ptr_reset:
@@ -83,6 +79,5 @@ mod_put:
 mod_get:
     in      a,(IOP_READ)
     call    PRHEXA
-    ld      a,32
-    call    DSPCHA
+    call    PRSPC
     jp      test_loop

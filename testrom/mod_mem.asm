@@ -5,12 +5,12 @@
 #include "einsdein.inc"
 
 mod_mem:
-    ld      b,COL_DYELLOW
+    ld      b,COL_DGREEN
     call    STBCOL
     call    CLRSC
 
 mem_main:
-    call    drawscreen
+	call	drawscreen
     .db     "1. Upload code to E000",13
     .db     "2. Run code at E000",13
     .db     "3. Zero E000-F000",13

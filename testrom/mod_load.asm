@@ -10,7 +10,7 @@ fnnb:
     .db     "drops.bin",0
     
 mod_load:
-    ld      b,COL_DGREEN
+    ld      b,COL_BLACK
     call    STBCOL
     call    CLRSC
 
@@ -18,20 +18,19 @@ mod_load:
     cp      42
     jr      z,{+}
 
-    rst     20h
+	call	drawscreen
     .db     "No einSDein found",0
     jp      ld_post
 
 +:
-    rst     28h
+	call	drawtext
     .db     "einSDein CPLD version ",0
     in      a,(IOP_VERSION)
     call    PRHEXA
 
-    rst 20h
+	call	drawscreen
     .db     "1. DROPS",13
     .db     "2. TEST",13
-    .db     "q. abort",13
     .db     0
 
     call    specialjump
@@ -49,7 +48,7 @@ ld_test:
     push    hl
 
 +:
-    rst     28h
+	call	drawtext
     .db     13,"Sending filename...",0
 
     ; send filename
@@ -60,7 +59,7 @@ ld_test:
     ld      bc,$4000+IOP_WRITEDAT
     otir
 
-    rst     28h
+	call	drawtext
     .db     13,"opening file...",0
 
     ; open file
@@ -70,7 +69,7 @@ ld_test:
 
     ; load 8k to $E000 (512b x 16)
 
-    rst     28h
+	call	drawtext
     .db     13,"loading...",13,0
 
     ld      b,16
@@ -107,8 +106,7 @@ ld_main:
     ld      bc,$200
     call    crc16
     call    PRHEX
-    ld      a,32
-    call    DSPCHA
+    call    PRSPC
 
     pop     hl
 
@@ -118,7 +116,7 @@ ld_main:
     ;
 
 ld_post:
-    call    drawtext
+	call	drawtext
     .db     13
     .db     "e - execute code at $E000",13
     .db     "d - execute DROPS",13

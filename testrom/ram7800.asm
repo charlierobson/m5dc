@@ -9,16 +9,13 @@ FLG	.equ	$72ff
     .org    $7800
 
 main_setup:
-    rst     20h
-    .db     "Key / Function",13
-    .db     "---   -----------------",13
+	call	drawscreen
     .db     "1.    Load",13
     .db     "2.    Dir",13
     .db     "3.    Mem",13
     .db     "4.    Test",13
-    .db     "---   -----------------",13
     .db     0
-    ld      b,1
+    ld      b,COL_BLACK
     call    STBCOL
 
 main_main:
@@ -26,33 +23,9 @@ main_main:
     .dw     '1',mod_load
     .dw     '2',mod_dir
     .dw     '3',mod_mem
-    .dw     '3',mod_test
+    .dw     '4',mod_test
     .dw     $ff
     jr      main_main
-
-
-;----------------------------------------------------------------
-
-
-;----------------------------------------------------------------
-
-; RST 20h
-
-drawscreen:
-    call    CLRSC
-
-drawtext:
-    pop     hl
-    jr      {+}
--:
-    call    DSPCHA
-    inc     hl
-+:
-    ld      a,(hl)
-    or      a
-    jr      nz,{-}
-    inc     hl
-    jp      (hl)
 
 ;----------------------------------------------------------------
 
@@ -104,7 +77,6 @@ prdec8bit:
 	sbc	    hl,bc
     jp      DSPCHA
 
-
 PRSPC:
     ld      a,32
     jp      DSPCHA
@@ -139,7 +111,6 @@ specialjump:
     inc     hl
     jp      (hl)
 
-
 ;----------------------------------------------------------------
 
 sendcmd:
@@ -155,22 +126,38 @@ sendcmd:
 
 ;----------------------------------------------------------------
 
+drawscreen:
+    call    CLRSC
+
+drawtext:
+    pop     hl
+    jr      {+}
+-:
+    call    DSPCHA
+    inc     hl
++:
+    ld      a,(hl)
+    or      a
+    jr      nz,{-}
+    inc     hl
+    jp      (hl)
+
+;----------------------------------------------------------------
 
 error:
     push    af
-    rst     28h
+	call	drawtext
     .db     13,"Error: ",0
     pop     af
     call    PRDECA
 
 keyandback:
-    rst     28h
+	call	drawtext
     .db     13,"[press a key]",0
     call    ACECHI
     jp      main_setup
 
 ;----------------------------------------------------------------
-
 
 #include "mod_load.asm"
 #include "mod_mem.asm"

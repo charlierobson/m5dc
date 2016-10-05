@@ -11,6 +11,15 @@ mod_dir:
     call    STBCOL
     call    CLRSC
 
+    in      a,(IOP_DETECT)
+    cp      42
+    jr      z,{+}
+
+	call	drawscreen
+    .db     "No einSDein found",0
+    jp      keyandback
+
++:
 	ld	    a,CMD_BUFFER_PTR_RESET
 	call	sendcmd
 
@@ -25,11 +34,11 @@ mod_dir:
 	in	    a,(IOP_READ)
 	in	    a,(IOP_READ)
 
-	rst     28h
+	call	drawtext
 	.db	    "DIR OF: ", 0
 
 	call	printEntry
-	call	newline
+	call	PRCRLF
 
 	ld	    a,2
 	ld	    (lineCount),a	; #lines of listing already on the screen
@@ -47,7 +56,7 @@ nextEntry:
 	cp	    15
 	jr	    nz,theresSpace
 
-	rst     28h
+	call	drawtext
 	.db		"PRESS A KEY", 0
 
 	call	ACECHI
@@ -58,7 +67,7 @@ nextEntry:
 	ld		(lineCount),a
 
 	; erase the 'press a key' message (11 chars) using 11 backspaces, 11 spaces then another 11 backspaces
-	rst     28h
+	call	drawtext
 	.fill	11,8
 	.fill	11,' '
 	.fill	11,8
@@ -96,6 +105,4 @@ printEntry:
 	call	DSPLTA
 	; falls through to newline
 
-newline:
-	ld		a,13
-	jp		DSPCHA
+	jp		PRCRLF

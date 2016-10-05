@@ -18,27 +18,9 @@ DST .equ    $7800
 ;----------------------------------------------------------------
 
 main_start:
-	xor		a
-    ld      hl,FLG
-    bit     7,(hl)
-    ld      (hl),a
-    jr      z,{+}
-
-    ld      sp,0
-    dec     hl
-    ld      a,(hl)
-    inc     hl
-    ld      h,(hl)
-    ld      l,a
-    jp      (hl)
-
-fnna:
-    .db     "util.rom",0
-
-+:
     in      a,(IOP_DETECT)
     cp      42
-    jr      nz,error
+    jr      nz,uploadDefault
 
     ld      a,CMD_BUFFER_PTR_RESET
     call    sendcmd
@@ -99,8 +81,43 @@ sendcmd:
 
 ;----------------------------------------------------------------
 
-
 error:
     ld      b,COL_DRED
     call    STBCOL
 -:  jr      {-}
+
+;----------------------------------------------------------------
+
+uploadDefault:
+    ld      hl,bin_d
+    ld      de,DST
+    ld      bc,bin_d_end-bin_d
+    ldir
+    jp      DST
+
+;----------------------------------------------------------------
+
+drawscreen:
+    call    CLRSC
+
+drawtext:
+    pop     hl
+    jr      {+}
+-:
+    call    DSPCHA
+    inc     hl
++:
+    ld      a,(hl)
+    or      a
+    jr      nz,{-}
+    inc     hl
+    jp      (hl)
+
+;----------------------------------------------------------------
+
+fnna:
+    .db     "util.rom",0
+
+bin_d:
+    #incbin "ram7800.bin"
+bin_d_end:
