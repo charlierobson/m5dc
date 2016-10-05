@@ -99,6 +99,5 @@ mem_dump:
     ; ======================
 
 testprog:
-    nop
-;;;    #incbin "ram-e000.bin"
+    #incbin "ramE000.bin"
 testprogend:

@@ -1,4 +1,8 @@
-del ram7800.bin
-del rom.bin
-brass %~dp0ram7800.asm %~dp0ram7800.bin -l %~dp0ram7800.html
-brass %~dp0rom.asm     %~dp0rom.bin     -l %~dp0rom.html
+call :doBuild ram7800
+call :doBuild ramE000
+call :doBuild rom
+exit /b
+
+:doBuild
+del %1.bin
+brass %~dp0%1.asm %~dp0%1.bin -l %~dp0%1.html
