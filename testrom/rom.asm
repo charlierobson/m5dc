@@ -51,10 +51,10 @@ fnna:
     call    sendcmd
     jp      nz,error
 
-    ; load 2k to $7800
+    ; load 2k to DST
 
     ld      b,4
-    ld      hl,$7800
+    ld      hl,DST
 
 ld_main:
     push    bc
@@ -82,7 +82,7 @@ ld_main:
 
     ei
 
-    jp      $7800
+    jp      DST
 
 ;----------------------------------------------------------------
 

@@ -8,22 +8,14 @@ FLG	.equ	$72ff
 
     .org    $7800
 
-    ; cart header
-    .db     0               ; cart identifier
-    .dw     main_setup      ; start address
-    .dw     $2e             ; IPL address
-    jp      drawscreen      ; RST 20h (RST 4)
-    jp      drawtext        ; RST 28h (RST 5)
-
-;----------------------------------------------------------------
-
 main_setup:
     rst     20h
     .db     "Key / Function",13
     .db     "---   -----------------",13
     .db     "1.    Load",13
     .db     "2.    Dir",13
-    .db     "3.    Test",13
+    .db     "3.    Mem",13
+    .db     "4.    Test",13
     .db     "---   -----------------",13
     .db     0
     ld      b,1
@@ -33,6 +25,7 @@ main_main:
     call    specialjump
     .dw     '1',mod_load
     .dw     '2',mod_dir
+    .dw     '3',mod_mem
     .dw     '3',mod_test
     .dw     $ff
     jr      main_main
@@ -180,7 +173,6 @@ keyandback:
 
 
 #include "mod_load.asm"
+#include "mod_mem.asm"
 #include "mod_dir.asm"
 #include "mod_test.asm"
-
-	.fill $4000-$

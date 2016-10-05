@@ -120,24 +120,15 @@ ld_main:
 ld_post:
     call    drawtext
     .db     13
-    .db     "q - return",13
-    .db     "E - execute code at $E000",13
-    .db     "D - execute DROPS",13
-    .db     "u - upload test code to $E000",13
-    .db     "d - dump $E000",13
-    .db     "f - fill $E000",13
-    .db     "x - xor $E000",13
+    .db     "e - execute code at $E000",13
+    .db     "d - execute DROPS",13
     .db     0
 
 -:
     call    specialjump
-    .dw     'E',$E000
-    .dw     'D',gdrops
-    .dw     'd',dumpE000
-    .dw     'f',fillE000
-    .dw     'x',xorE000
+    .dw     'e',$E000
+    .dw     'd',gdrops
     .dw     'q',main_setup
-    .dw     'u',uploader
     .dw     $ff
     jr      {-}
 
@@ -151,56 +142,6 @@ uploader:
     ld      bc,$100
     ldir
     jp      ld_post
-
-
-fillE000:
-    ld      hl,$E000
-    xor     a
-    ld      b,a
--:
-    ld      (hl),a
-    inc     a
-    inc     hl
-    djnz    {-}
-    jp      ld_post
-    
-xorE000:
-    ld      hl,$E000
-    xor     a
-    ld      b,a
--:
-    ld      a,(hl)
-    xor     $ff
-    ld      (hl),a
-    inc     hl
-    djnz    {-}
-    jp      ld_post
-
-dumpE000:
-    ld      hl,$E000
-
-    ld      b,16
---:
-    push    bc
-    ld      b,16
--:
-    ld      a,(hl)
-    inc     hl
-    push    bc
-    push    hl
-    call    PRHEXA
-    pop     hl
-    pop     bc
-    djnz    {-}
-
-    pop     bc
-    djnz    {--}
-
-    jp      ld_post
-
-
-
-
 
 
 
@@ -236,7 +177,3 @@ crc16:
 	jr	    nz,{--}
 
     ret
-
-
-testprog:
-    #incbin "game.rom"

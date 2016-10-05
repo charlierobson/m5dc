@@ -3,15 +3,14 @@
     // for the documentation about the tasks.json format
     "version": "0.1.0",
     "windows": {
-        "command": "brass.exe"
+        "command": "_build.bat"
     },
     "linux": {
-        "command": "mono Brass.exe"
+        "command": "[add task here]"
     },
     "osx": {
-        "command": "mono Brass.exe"
+        "command": "[add task here]"
     },
     "isShellCommand": true,
-    "args": ["M5_test.asm", "-l", "M5_test.html"],
     "showOutput": "always"
 }
