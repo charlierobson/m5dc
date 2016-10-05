@@ -169,21 +169,9 @@ MAINFN
 				// open for reading
 				case CMD_FILE_OPEN_READ:
 				{
-					reportInput("File open read");
-
-					error = openFile(&userFile, ioBuffer, FA_READ);
-					if (error)
-					{
-						strcat(ioBuffer, ".gne");
-						error = openFile(&userFile, ioBuffer, FA_READ);
-					}
-					if (error) { reportOKFail(error); break; }
-
 					gfbytes = 0;
-
-					// first 6 bytes of GNE file are LOADADDRESS, LENGTH, EXEC ADDRESS
-					error = reportOKFail(f_read(&userFile, ioBuffer, 6, &numRead));
-
+					reportInput("File open read");
+					reportOKFail(openFile(&userFile, ioBuffer, FA_READ)); break; }
 					mode = MODE_OUTPUT;
 					bp = ioBuffer;
 				}
@@ -229,12 +217,10 @@ MAINFN
 					memset(ioBuffer, 0, 512);
 
 					Serial_print("File read 512");
-
 					error = reportOKFail(f_read(&userFile, ioBuffer, 512, &numRead));
 
 					crc = crc16_ccitt((const unsigned char*)ioBuffer, 512, -1);
 					Serial_printf("  crc=%04x\r\n", crc);
-
 					if (gfbytes < 1024)
 					{
 						int i;
@@ -245,6 +231,7 @@ MAINFN
 						}
 					}
 					gfbytes += 512;
+
 					mode = MODE_OUTPUT;
 					bp = ioBuffer;
 				}
