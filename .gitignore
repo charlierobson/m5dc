@@ -25,3 +25,4 @@ pic/firmware/intermediate
 *.mcs
 *.o
 *.d
+*.elf
