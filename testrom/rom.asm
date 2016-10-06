@@ -47,6 +47,7 @@ ld_main:
     jp      nz,error
 
     di
+    push    hl
 
     ; read next 512 bytes
     ld      bc,$0000+IOP_READ
@@ -59,8 +60,25 @@ ld_main:
     inc     hl
     djnz    {-}
 
+    pop     de
+    push    hl
+    ld      bc,$200
+    call    crc16
+
+    ld      a,CMD_BUFFER_PTR_RESET
+    call    sendcmd
+
+    ld      a,h
+    out     (IOP_WRITEDAT),a
+    ld      a,l
+    out     (IOP_WRITEDAT),a
+
+    ld      a,CMD_DBG_HEX16
+    call    sendcmd
+
+    pop     hl
     pop     bc
-    djnz   ld_main
+    djnz    ld_main
 
     ei
 
@@ -97,21 +115,35 @@ uploadDefault:
 
 ;----------------------------------------------------------------
 
-drawscreen:
-    call    CLRSC
-
-drawtext:
-    pop     hl
-    jr      {+}
+crc16:
+	ld	    hl,FFFFh
+--:
+    push    bc
+	ld	    a,(de)
+	inc	    de
+	xor	    h
+	ld	    h,a
+	ld	    b,8
 -:
-    call    DSPCHA
-    inc     hl
+	add	    hl,hl
+	jr	    nc,{+}
+
+	ld	    a,h
+	xor	    10h
+	ld	    h,a
+	ld	    a,l
+	xor	    21h
+	ld      l,a
 +:
-    ld      a,(hl)
-    or      a
-    jr      nz,{-}
-    inc     hl
-    jp      (hl)
+	djnz	{-}
+
+    pop     bc
+	dec	    bc
+    ld      a,b
+    or      c
+	jr	    nz,{--}
+
+    ret
 
 ;----------------------------------------------------------------
 

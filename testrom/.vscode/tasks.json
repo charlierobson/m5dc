@@ -9,7 +9,7 @@
         "command": "[add task here]"
     },
     "osx": {
-        "command": "[add task here]"
+        "command": "./makemac.sh"
     },
     "isShellCommand": true,
     "showOutput": "always"

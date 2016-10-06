@@ -8,24 +8,26 @@ FLG	.equ	$72ff
 
     .org    $7800
 
-main_setup:
-	call	drawscreen
+main:
+    ld      hl,mainmenu
+	call	TXTA
+    call    specialjump
+    jr      main
+
+mainmenu:
+    .db     12
+    .db     "SD!",13
     .db     "1.    Load",13
     .db     "2.    Dir",13
     .db     "3.    Mem",13
     .db     "4.    Test",13
     .db     0
-    ld      b,COL_BLACK
-    call    STBCOL
-
-main_main:
-    call    specialjump
     .dw     '1',mod_load
     .dw     '2',mod_dir
     .dw     '3',mod_mem
     .dw     '4',mod_test
     .dw     $ff
-    jr      main_main
+
 
 ;----------------------------------------------------------------
 
@@ -87,32 +89,6 @@ PRCRLF:
 
 ;----------------------------------------------------------------
 
-specialjump:
-    call    ACECHI          ; read key
-    pop     hl              ; get pointer to key/jump table
--:
-    cp      (hl)            ; matched key?
-    inc     hl              ; (skip key def)
-    inc     hl
-    jr      nz,{+}
-
-    ld      a,(hl)          ; jey is matched, retrieve jump address
-    inc     hl
-    ld      h,(hl)
-    ld      l,a
-    jp      (hl)
-
-+:
-    inc     hl              ; skip jump address
-    inc     hl   
-    bit     7,(hl)          ; table end?
-    jr      z,{-}
-
-    inc     hl
-    jp      (hl)
-
-;----------------------------------------------------------------
-
 sendcmd:
     out     (IOP_WRITECMD),a
 -:
@@ -126,36 +102,79 @@ sendcmd:
 
 ;----------------------------------------------------------------
 
-drawscreen:
-    call    CLRSC
-
-drawtext:
-    pop     hl
-    jr      {+}
 -:
     call    DSPCHA
     inc     hl
-+:
+TXTA:
     ld      a,(hl)
     or      a
     jr      nz,{-}
     inc     hl
+
+    ld      ($7300),hl
+    ret
+
+;----------------------------------------------------------------
+
+specialjump:
+    call    ACECHI          ; read key
+    ld      hl,($7300)
+-:
+    cp      (hl)            ; matched key?
+    inc     hl              ; (skip key def)
+    inc     hl
+    jr      nz,{+}
+
+    ld      a,(hl)          ; key is matched, retrieve jump address
+    inc     hl
+    ld      h,(hl)
+    ld      l,a
     jp      (hl)
+
++:
+    inc     hl              ; skip jump address
+    inc     hl   
+    bit     7,(hl)          ; table end?
+    jr      z,{-}
+    jr      specialjump
 
 ;----------------------------------------------------------------
 
 error:
     push    af
-	call	drawtext
-    .db     13,"Error: ",0
+    ld      hl,msg_error
+	call	TXTA
     pop     af
     call    PRDECA
+    jr      keyandbacktomm
 
-keyandback:
-	call	drawtext
-    .db     13,"[press a key]",0
+noeinsdein:
+    ld      hl,msg_noeinsdein
+    call    TXTA
+
+    ; fall through
+
+keyandbacktomm:
+    ld      hl,msg_pressakey
+	call	TXTA
     call    ACECHI
-    jp      main_setup
+
+    ; fall through
+
+retmm:
+    pop     hl
+    jp      main
+
+
+
+msg_error:
+    .db     13,"Error: ",0
+
+msg_noeinsdein:
+    .db     "No einSDein found",0
+
+msg_pressakey:
+    .db     13,"[press a key]",0
 
 ;----------------------------------------------------------------
 
