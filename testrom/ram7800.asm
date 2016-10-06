@@ -6,7 +6,9 @@
 
 #include "../commandids.h"
 
-FLG	.equ	$72ff
+MNKJST  .equ    $7300
+DIRLC   .equ    $7302
+SDIOB   .equ    $7310
 
     .org    $7800
 
@@ -112,14 +114,14 @@ TXTA:
     jr      nz,{-}
     inc     hl
 
-    ld      ($7300),hl
+    ld      (MNKJST),hl
     ret
 
 ;----------------------------------------------------------------
 
 specialjump:
     call    ACECHI          ; read key
-    ld      hl,($7300)
+    ld      hl,(MNKJST)
 -:
     cp      (hl)            ; matched key?
     inc     hl              ; (skip key def)

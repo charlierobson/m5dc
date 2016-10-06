@@ -1,6 +1,4 @@
 
-lineCount   .equ    $7302
-
 msg_dirof:
 	.db	    "DIR OF: ", 0
 
@@ -36,7 +34,7 @@ mod_dir:
 	call	PRCRLF
 
 	ld	    a,2
-	ld	    (lineCount),a	; #lines of listing already on the screen
+	ld	    (MNKJST),a	; #lines of listing already on the screen
 
 nextEntry:
 	ld	    a,CMD_DIR_READ_NEXT
@@ -49,7 +47,7 @@ nextEntry:
 	jp      nz,error
 
 	; there's one in the pipe - is there room to print it tho?
-	ld	    a,(lineCount)
+	ld	    a,(MNKJST)
 	cp	    15
 	jr	    nz,theresSpace
 
@@ -60,7 +58,7 @@ nextEntry:
 	ret		z
 
 	xor		a
-	ld		(lineCount),a
+	ld		(MNKJST),a
 
 	; erase the 'press a key' message (11 chars) using 11 backspaces, 11 spaces then another 11 backspaces
 	ld		hl,msg_erasepak
@@ -68,7 +66,7 @@ nextEntry:
 
 theresSpace:
 	call	printEntry
-	ld		hl,lineCount
+	ld		hl,MNKJST
 	inc		(hl)
 	jr		nextEntry
 
@@ -77,7 +75,7 @@ theresSpace:
 printEntry:
 	; grab $20 characters 
 	ld		bc,$2000+IOP_READ
-	ld		hl,$7380
+	ld		hl,SDIOB
 	push	hl
 
 	di
