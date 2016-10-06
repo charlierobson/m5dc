@@ -30,7 +30,7 @@ mod_load:
 
     in      a,(IOP_DETECT)
     cp      42
-    jp      z,noeinsdein
+    jp      nz,noeinsdein
 
     ld      hl,msg_escpldv
 	call	TXTA

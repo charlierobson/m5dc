@@ -64,8 +64,10 @@ ld_main:
     push    hl
     ld      bc,$200
     call    crc16
+
     ld      a,CMD_BUFFER_PTR_RESET
     call    sendcmd
+
     ld      a,h
     out     (IOP_WRITEDAT),a
     ld      a,l
