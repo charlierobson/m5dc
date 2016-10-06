@@ -23,19 +23,12 @@ mod_dir:
     jp      nz,noEinsdein
 
 +:
-	ld	    a,CMD_BUFFER_PTR_RESET
+	ld	    a,CMD_BUFFER_FLUSH
 	call	sendcmd
-
-	ld		a,0
-	out		(IOP_WRITEDAT),a
 
 	ld	    a,CMD_DIR_READ_BEGIN
 	call	sendcmd
 	jp	    nz,error
-
-	; sink the confusing drive spec '0:'
-	in	    a,(IOP_READ)
-	in	    a,(IOP_READ)
 
 	ld		hl,msg_dirof
 	call	TXTA

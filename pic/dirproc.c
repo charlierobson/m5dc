@@ -44,6 +44,68 @@ void strvalidate(char* p)
 	strupper(p);
 }
 
+
+void copyNameNormal(char* dest, char*src)
+{
+	strcpy(dest, src);
+}
+
+
+void copyNameFancy(char* q /*dest*/, char* p /*src*/)
+{
+	int nc = 0;
+	int df = 0;
+
+	if(dirFile.fattrib & AM_RDO)
+	{
+		*q = '*';
+	}
+	else
+	{
+		*q = ' ';
+	}
+
+	++q;
+
+	while (*p)
+	{
+		if (*p == '.')
+		{
+			df = 1;
+			if (nc < 8)
+			{
+				*q = ' ';
+				++q;
+				++nc;
+				continue;
+			}
+		}
+
+		if (!df && nc == 8)
+		{
+			++p;
+			continue;
+		}
+
+		*q = toupper(*p);
+		++nc;
+		++p;
+		++q;
+		if (nc == 12)
+		{
+			break;
+		}
+	}
+
+	while(nc < 12)
+	{
+		*q = 32;
+		++nc;
+		++q;
+	}
+	*q = 0;
+}
+
 int dirHandler()
 {
 	int rtn = FR_OK;
@@ -108,8 +170,7 @@ int dirHandler()
 					{
 						ioBuffer[0] = '<';
 						strcpy(ioBuffer+1, &dirFile.fname[0]);
-						strcat(ioBuffer, ">           ");
-						ioBuffer[12] = 0;
+						strcat(ioBuffer, ">");
 
 						strvalidate(ioBuffer);
 						mode = MODE_OUTPUT;
@@ -152,57 +213,10 @@ int dirHandler()
 				{
 					if ((dirFile.fattrib & AM_DIR) == 0)
 					{
-						char* p = &dirFile.fname[0];
-						char* q = ioBuffer;
-						int nc = 0;
-						int df = 0;
+						memset(ioBuffer, 0, 32);
 
-						if(dirFile.fattrib & AM_RDO)
-						{
-							ioBuffer[0] = '*';
-						}
-						else
-						{
-							ioBuffer[0] = ' ';
-						}
-
-						while (*p)
-						{
-							if (*p == '.')
-							{
-								df = 1;
-								if (nc < 8)
-								{
-									*q = ' ';
-									++q;
-									++nc;
-									continue;
-								}
-							}
-			
-							if (!df && nc == 8)
-							{
-								++p;
-								continue;
-							}
-			
-							*q = toupper(*p);
-							++nc;
-							++p;
-							++q;
-							if (nc == 12)
-							{
-								break;
-							}
-						}
-
-						while(nc < 12)
-						{
-							*q = 32;
-							++nc;
-							++q;
-						}
-						*q = 0;
+						//copyNameFancy(ioBuffer, &dirFile.fname[0]);
+						copyNameNormal(ioBuffer, &dirFile.fname[0]);
 
 						if (dirFile.fsize < 1024)
 						{
