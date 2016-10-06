@@ -12,13 +12,14 @@
 // READ/WRITE for files - does the disposition work the way it's expected to?
 // Is there an error returned by f_read if you attempt to read past EOF?
 
-extern unsigned short crc16_ccitt(const unsigned char *buf, int len, unsigned short crc);
+unsigned short crc;
+
+extern unsigned short crc16_ccitt(const byte* buf, int len, unsigned short crc);
 
 extern void TestMode();
 
 MAINFN
 {
-	static int gfbytes;
 	UINT numRead;
 	BYTE status, data;
 
@@ -169,9 +170,8 @@ MAINFN
 				// open for reading
 				case CMD_FILE_OPEN_READ:
 				{
-					gfbytes = 0;
 					reportInput("File open read");
-					reportOKFail(openFile(&userFile, ioBuffer, FA_READ)); break; }
+					reportOKFail(openFile(&userFile, ioBuffer, FA_READ));
 					mode = MODE_OUTPUT;
 					bp = ioBuffer;
 				}
@@ -200,6 +200,7 @@ MAINFN
 
 				// open for writing - will truncate existing files
 				case CMD_FILE_OPEN_WRITE:
+				{
 					reportInput("File open write");
 
 					error = reportOKFail(openFile(&userFile, ioBuffer, FA_WRITE|FA_CREATE_ALWAYS));
@@ -208,50 +209,56 @@ MAINFN
 					f_lseek(&userFile, userFile.fsize);
 
 					bp = ioBuffer;
-					break;
-
-				// read 512b from file
-				case CMD_FILE_READ_512:
-				{
-					unsigned short crc;
-					memset(ioBuffer, 0, 512);
-
-					Serial_print("File read 512");
-					error = reportOKFail(f_read(&userFile, ioBuffer, 512, &numRead));
-
-					crc = crc16_ccitt((const unsigned char*)ioBuffer, 512, -1);
-					Serial_printf("  crc=%04x\r\n", crc);
-					if (gfbytes < 1024)
-					{
-						int i;
-						for(i = 0; i < 256; ++i)
-						{
-							Serial_printHex(ioBuffer[i]);
-							if ((i & 15)==15) Serial_NL();
-						}
-					}
-					gfbytes += 512;
-
-					mode = MODE_OUTPUT;
-					bp = ioBuffer;
-				}
-				break;
-
-				case CMD_FILE_READ_BLOB:
-				{
-					error = ReadBlob(&userFile);
-					if (error != 0x40) error = reportOKFail(error);
-
-					mode = MODE_OUTPUT;
-					bp = ioBuffer;
 				}
 				break;
 
 				case CMD_FILE_READ_256:
 				{
-					Serial_print("File read 256");
+					crc = 0xffff;
+					memset(ioBuffer, 0, 256);
 
+					Serial_print("File read 256");
 					error = reportOKFail(f_read(&userFile, ioBuffer, 256, &numRead));
+
+					if (!error) crc = crc16_ccitt((const byte*)ioBuffer, 256, -1);
+
+					Serial_printf("sd-x CRC = %04x\r\n", crc);
+
+					mode = MODE_OUTPUT;
+					bp = ioBuffer;
+				}
+				break;
+
+				// read 512b from file
+				case CMD_FILE_READ_512:
+				{
+					crc = 0xffff;
+					memset(ioBuffer, 0, 512);
+
+					Serial_print("File read 512");
+					error = reportOKFail(f_read(&userFile, ioBuffer, 512, &numRead));
+
+					if (!error) crc = crc16_ccitt((const byte*)ioBuffer, 512, -1);
+
+					Serial_printf("sd-x CRC = %04x\r\n", crc);
+
+					mode = MODE_OUTPUT;
+					bp = ioBuffer;
+				}
+				break;
+
+				case CMD_FILE_VERIFYCRC:
+				{
+					unsigned short rcvCRC = ioBuffer[0] + 256 * ioBuffer[1];
+					Serial_printf("host CRC = %04x\r\n", rcvCRC);
+
+					error = crc == rcvCRC ? 0 : 1;					
+				}
+
+				case CMD_FILE_READ_BLOB:
+				{
+					error = ReadBlob(&userFile);
+					if (error != 0x40) error = reportOKFail(error);
 
 					mode = MODE_OUTPUT;
 					bp = ioBuffer;

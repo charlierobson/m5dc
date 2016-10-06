@@ -4,6 +4,8 @@
 #include "m5bios.inc"
 #include "einsdein.inc"
 
+#include "../commandids.h"
+
 FLG	.equ	$72ff
 
     .org    $7800
@@ -16,7 +18,6 @@ main:
 
 mainmenu:
     .db     12
-    .db     "SD!",13
     .db     "1.    Load",13
     .db     "2.    Dir",13
     .db     "3.    Mem",13

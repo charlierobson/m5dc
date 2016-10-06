@@ -11,7 +11,7 @@ main_setup:
     call    DSPLTA
     ld      b,COL_BLACK
     call    STBCOL
-    call    ACECHI          ; read key
+    call    ACECHI
     jp      0
 
 msg:
