@@ -4,7 +4,19 @@
 #include "commandIDs.h"
 #include "einsdein.inc"
 
-lineCount   .equ    $C000
+lineCount   .equ    $7302
+
+msg_dirof:
+	.db	    "DIR OF: ", 0
+
+msg_pressakeydir:
+	.db		"PRESS A KEY", 0
+
+msg_erasepak:
+	.fill	11,8
+	.fill	11,' '
+	.fill	11,8
+	.db		0
 
 mod_dir:
     ld      b,COL_DBLUE
@@ -13,11 +25,7 @@ mod_dir:
 
     in      a,(IOP_DETECT)
     cp      42
-    jr      z,{+}
-
-	call	drawscreen
-    .db     "No einSDein found",0
-    jp      keyandback
+    jp      nz,noEinsdein
 
 +:
 	ld	    a,CMD_BUFFER_PTR_RESET
@@ -34,9 +42,8 @@ mod_dir:
 	in	    a,(IOP_READ)
 	in	    a,(IOP_READ)
 
-	call	drawtext
-	.db	    "DIR OF: ", 0
-
+	ld		hl,msg_dirof
+	call	TXTA
 	call	printEntry
 	call	PRCRLF
 
@@ -46,8 +53,10 @@ mod_dir:
 nextEntry:
 	ld	    a,CMD_DIR_READ_NEXT
 	call	sendcmd
+
     cp      $40
-    jp      z,keyandback
+    ret		z
+
     and     a
 	jp      nz,error
 
@@ -56,22 +65,18 @@ nextEntry:
 	cp	    15
 	jr	    nz,theresSpace
 
-	call	drawtext
-	.db		"PRESS A KEY", 0
-
+	ld		hl,msg_pressakeydir
+	call	TXTA
 	call	ACECHI
 	cp		'q'
-	jp		z,main_setup
+	ret		z
 
 	xor		a
 	ld		(lineCount),a
 
 	; erase the 'press a key' message (11 chars) using 11 backspaces, 11 spaces then another 11 backspaces
-	call	drawtext
-	.fill	11,8
-	.fill	11,' '
-	.fill	11,8
-	.db		0
+	ld		hl,msg_erasepak
+	call	TXTA
 
 theresSpace:
 	call	printEntry
@@ -84,18 +89,20 @@ theresSpace:
 printEntry:
 	; grab $20 characters 
 	ld		bc,$2000+IOP_READ
-	ld		hl,$c010
+	ld		hl,$7380
 	push	hl
 
 	di
 
 -:  in      a,(IOP_READ)
+	or		a
+	jr		z,{+}
 	or		32
 	and		127
     ld      (hl),a
     inc     hl
     djnz    {-}
-
++:
 	ei
 
 	xor		a
@@ -103,6 +110,4 @@ printEntry:
 
 	pop		hl
 	call	DSPLTA
-	; falls through to newline
-
 	jp		PRCRLF

@@ -10,7 +10,13 @@ mod_mem:
     call    CLRSC
 
 mem_main:
-	call	drawscreen
+    ld      hl,mem_mainmenu
+	call	TXTA
+-:  call    specialjump
+    jr      {-}
+
+mem_mainmenu:
+    .db     12
     .db     "1. Upload code to E000",13
     .db     "2. Run code at E000",13
     .db     "3. Zero E000-F000",13
@@ -18,18 +24,15 @@ mem_main:
     .db     "5.  XOR E000-E100",13
     .db     "6. Dump E000-E100",13
     .db     0
-
-mem_loop:
-    call    specialjump
     .dw     '1',mem_upload
     .dw     '2',$E000
     .dw     '3',mem_zero
     .dw     '4',mem_fill
     .dw     '5',mem_xor
     .dw     '6',mem_dump
-    .dw     'q',main_setup
     .dw     'm',mem_main
-    jr      mem_loop
+    .dw     'q',retmm
+    .db     $ff
 
     ; =====================
 
@@ -38,7 +41,7 @@ mem_upload:
     ld      de,$E000
     ld      bc,testprogend-testprog
     ldir
-    jp      mem_loop
+    ret
 
 
 mem_zero:
@@ -48,7 +51,7 @@ mem_zero:
     ld      (hl),a
     ld      bc,$fff
     ldir
-    jp      mem_loop
+    ret
 
 
 mem_fill:
@@ -60,7 +63,7 @@ mem_fill:
     inc     a
     inc     hl
     djnz    {-}
-    jp      mem_loop
+    ret
 
 
 mem_xor:
@@ -72,7 +75,7 @@ mem_xor:
     ld      (hl),a
     inc     hl
     djnz    {-}
-    jp      mem_loop
+    ret
 
 
 mem_dump:

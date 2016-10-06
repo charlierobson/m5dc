@@ -373,9 +373,7 @@ MAINFN
 
 				case CMD_DBG_HEX16:
 				{
-					bp = ioBuffer;
-					Serial_printHex(*bp);
-					Serial_printHex(*bp);
+					Serial_printf("CMD_DBG_HEX16: %02x%02x\r\n", *(bp-2), *(bp-1));
 				}
 				break;
 
