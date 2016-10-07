@@ -75,53 +75,66 @@ ld_test:
     call    sendcmd
     jp      nz,error
 
-    ; load 8k to $E000 (512b x 16)
+    ld      a,CMD_BUFFER_PTR_RESET
+    call    sendcmd
+    ld      a,$80
+    out     (IOP_WRITEDAT),a
+    ld      a,CMD_DBG_SET_FLAGS
+    call    sendcmd
+
+    ; load to $E000
 
     ld      hl,msg_loading
 	call	TXTA
 
-    ld      b,16
     ld      hl,$E000
+    jr      ld_nextblock
 
-ld_main:
-    push    bc
-
-    ; prepare next 512 bytes
-    ld      a,CMD_FILE_READ_512
-    call    sendcmd
-    jp      nz,error
-
+ld_loop:
     push    hl
 
     di
 
     ; read next 512 bytes
     ld      bc,$0000+IOP_READ
--:  in      a,(IOP_READ)
-    ld      (hl),a
-    inc     hl
-    djnz    {-}
--:  in      a,(IOP_READ)
-    ld      (hl),a
-    inc     hl
-    djnz    {-}
+    inir
+    inir
 
     ei
 
     pop     de
     push    hl
-
     ld      bc,$200
+
+    ; display/check CRC
     call    crc16
     call    PRHEX
     call    PRSPC
+    call    PRSPC
+    call    PRSPC
+    call    PRSPC
+
+    ld      a,CMD_BUFFER_PTR_RESET
+    call    sendcmd
+    ld      a,l
+    out     (IOP_WRITEDAT),a
+    ld      a,h
+    out     (IOP_WRITEDAT),a
+    ld      a,CMD_FILE_VERIFYCRC
+    call    sendcmd
+    jp      nz,error
 
     pop     hl
 
-    pop     bc
-    djnz   ld_main
+ld_nextblock:
+    ld      a,CMD_FILE_READ_512
+    call    sendcmd
+    jr      z,ld_loop
 
-    ;
+    cp      $40
+    jp      nz,error
+
+    ; done
 
 ld_post:
     ld      hl,ld_exmenu
@@ -131,8 +144,8 @@ ld_post:
 
 ld_exmenu:
     .db     13
-    .db     "e - execute code at $E000",13
     .db     "d - execute DROPS",13
+    .db     "e - execute code at $E000",13
     .db     0
     .dw     'e',$E000
     .dw     'd',gdrops
@@ -143,6 +156,9 @@ ld_exmenu:
 
 gdrops:
     ld      sp,0
+    ld      hl,0
+    ld      bc,0
+    ld      de,$ffff
     jp      $E88E
 
 uploader:

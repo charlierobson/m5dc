@@ -14,9 +14,11 @@
 
 unsigned short crc;
 
-extern unsigned short crc16_ccitt(const byte* buf, int len, unsigned short crc);
+extern unsigned short crc16_ccitt(const unsigned char* buf, int len, unsigned short crc);
 
 extern void TestMode();
+
+BYTE dbgFlags = 0;
 
 MAINFN
 {
@@ -40,8 +42,6 @@ MAINFN
 		else
 		{
 			// byte was marked as command
-
-			Serial_printf("Command %d\r\n", data);
 
 			BYTE error = 0;
 			LED_WHITE_ON;
@@ -220,7 +220,8 @@ MAINFN
 					Serial_print("File read 256");
 					error = reportOKFail(f_read(&userFile, ioBuffer, 256, &numRead));
 
-					if (!error) crc = crc16_ccitt((const byte*)ioBuffer, 256, -1);
+					if (!error) crc = crc16_ccitt((const BYTE*)ioBuffer, 256, -1);
+					if (numRead == 0 && error == 0) error = 0x40;
 
 					Serial_printf("sd-x CRC = %04x\r\n", crc);
 
@@ -238,7 +239,8 @@ MAINFN
 					Serial_print("File read 512");
 					error = reportOKFail(f_read(&userFile, ioBuffer, 512, &numRead));
 
-					if (!error) crc = crc16_ccitt((const byte*)ioBuffer, 512, -1);
+					if (!error) crc = crc16_ccitt((const BYTE*)ioBuffer, 512, -1);
+					if (numRead == 0 && error == 0) error = 0x40;
 
 					Serial_printf("sd-x CRC = %04x\r\n", crc);
 
@@ -249,11 +251,13 @@ MAINFN
 
 				case CMD_FILE_VERIFYCRC:
 				{
-					unsigned short rcvCRC = ioBuffer[0] + 256 * ioBuffer[1];
+					BYTE*b = (BYTE*)ioBuffer;
+					unsigned short rcvCRC = b[0] + 256 * b[1];
 					Serial_printf("host CRC = %04x\r\n", rcvCRC);
 
 					error = crc == rcvCRC ? 0 : 1;					
 				}
+				break;
 
 				case CMD_FILE_READ_BLOB:
 				{
@@ -329,6 +333,12 @@ MAINFN
 
 					error = reportOKFail(f_close(&userFile));
 					userFile.fs = NULL;
+				}
+				break;
+
+				case CMD_DBG_SET_FLAGS:
+				{
+					dbgFlags = ioBuffer[0];
 				}
 				break;
 

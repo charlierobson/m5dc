@@ -54,29 +54,34 @@ main_start:
     ld      ix,E2
     jp      nz,error
 
-    ; load 2k (4*512b) to DST
+    ; load at most 2k (4*512b) to DST
     ld      b,4
     ld      hl,DST
 
-ld_main:
-    push    bc
+    di
 
+ld_main:
     ; prepare next 512 bytes - error 3 on failure
     ld      a,CMD_FILE_READ_512
     call    sendcmd
+
+    cp      $40
+    jr      z,ld_done
+
     ld      ix,E3
+    or      a
     jp      nz,error
 
-    di
+    push    bc
     push    hl
 
     ; read next 512 bytes
     ld      bc,$0000+IOP_READ
--:  in      a,(IOP_READ)
+-:  in      a,(c)
     ld      (hl),a
     inc     hl
     djnz    {-}
--:  in      a,(IOP_READ)
+-:  in      a,(c)
     ld      (hl),a
     inc     hl
     djnz    {-}
@@ -91,9 +96,9 @@ ld_main:
     ; check CRC
     ld      a,CMD_BUFFER_PTR_RESET
     call    sendcmd
-    ld      a,h
-    out     (IOP_WRITEDAT),a
     ld      a,l
+    out     (IOP_WRITEDAT),a
+    ld      a,h
     out     (IOP_WRITEDAT),a
     ld      a,CMD_FILE_VERIFYCRC
     call    sendcmd
@@ -104,6 +109,7 @@ ld_main:
     pop     bc
     djnz    ld_main
 
+ld_done:
     ei
 
     jp      DST
@@ -132,13 +138,20 @@ error:
     push    ix
     pop     hl
     call    DSPLTA
--:  jr      {-}
+    call    $10ED
+    ld      hl,EX
+    call    DSPLTA
+
+    call    ACECHI
+    jp      0
+
 
 E0: .byte   "Error:",13
 E1: .byte   " SD-X not found.",13
 E2: .byte   " Secondary loader missing.",13
 E3: .byte   " Loader read error.",13
 E4: .byte   " Loader checksum error.",13
+EX: .byte   "Press a key ",13
 
 ;----------------------------------------------------------------
 

@@ -163,9 +163,9 @@ file_027=dsk.h
 file_028=einSDein.h
 file_029=configfile.h
 file_030=..\commandIDs.h
-file_031=..\compiler.h
-file_032=..\config.h
-file_033=..\hardwareprofile.h
+file_031=compiler.h
+file_032=config.h
+file_033=hardwareprofile.h
 file_034=app_32MX150F128D.ld
 [SUITE_INFO]
 suite_guid={62D235D8-2DB2-49CD-AF24-5489A6015337}
@@ -173,7 +173,7 @@ suite_state=
 [TOOL_SETTINGS]
 TS{6F324298-6323-4781-8C43-43FA5E6F3646}=
 TS{1F324EFA-C0BA-4A8F-A85A-B21644939CAD}=-g -DHARDWARE03 -DWANT_SERIAL -Wall -O3
-TS{29D3B6CC-DCAB-4659-8011-FFF75BB7F8D7}=-Map="$(BINDIR_)$(TARGETBASE).map" --cref --warn-section-align -o"$(BINDIR_)einsd03.$(TARGETSUFFIX)"
+TS{29D3B6CC-DCAB-4659-8011-FFF75BB7F8D7}=-Map="$(BINDIR_)$(TARGETBASE).map" --cref -o"$(BINDIR_)einsd03.$(TARGETSUFFIX)"
 TS{AD4C3FBD-B6BB-4F50-AB4E-35BF132D4D60}=
 [INSTRUMENTED_TRACE]
 enable=0

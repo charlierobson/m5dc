@@ -41,7 +41,7 @@ nextEntry:
 	call	sendcmd
 
     cp      $40
-    ret		z
+    jp		z,keyandbacktomm
 
     and     a
 	jp      nz,error
@@ -79,16 +79,7 @@ printEntry:
 	push	hl
 
 	di
-
--:  in      a,(IOP_READ)
-	or		a
-	jr		z,{+}
-	or		32
-	and		127
-    ld      (hl),a
-    inc     hl
-    djnz    {-}
-+:
+	inir
 	ei
 
 	xor		a
