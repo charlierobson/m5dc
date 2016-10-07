@@ -16,7 +16,7 @@ DST .equ    $7800
     ; cart header
     .db     0               ; cart identifier
     .dw     main_start      ; start address
-    .dw     $2e             ; IPL address (?)
+    .dw     $2e             ; IPL address (wassat?)
 
 ;----------------------------------------------------------------
 
@@ -26,32 +26,33 @@ main_start:
     and     4
     jr      z,{+}
 
-    ; upload ROM copy of util if left shift pressed
+    ; left shift is pressed, upload ROM copy of util
+    ; make background green to distinguish from sd card version
     ld      hl,bin_d
     ld      de,DST
     ld      bc,bin_d_end-bin_d
     ldir
+
     ld      b,COL_DGREEN
     call    STBCOL
     jp      DST
     
 +:  ; test for einSDein - error 1 if not found
+    ld      ix,E1
     in      a,(IOP_DETECT)
     cp      42
-    ld      ix,E1
     jr      nz,error
 
     ld      a,CMD_BUFFER_PTR_RESET
     call    sendcmd
-
     ld      hl,fnna
     ld      bc,$4000+IOP_WRITEDAT
     otir
 
     ; open file - error 2 if open fails
+    ld      ix,E2
     ld      a,CMD_FILE_OPEN_READ
     call    sendcmd
-    ld      ix,E2
     jp      nz,error
 
     ; load at most 2k (4*512b) to DST
@@ -62,13 +63,13 @@ main_start:
 
 ld_main:
     ; prepare next 512 bytes - error 3 on failure
+    ld      ix,E3
     ld      a,CMD_FILE_READ_512
     call    sendcmd
 
     cp      $40
     jr      z,ld_done
 
-    ld      ix,E3
     or      a
     jp      nz,error
 
@@ -76,6 +77,7 @@ ld_main:
     push    hl
 
     ; read next 512 bytes
+    ; for some reason INIR instruction doesn't work when run in ROM. Timing?
     ld      bc,$0000+IOP_READ
 -:  in      a,(c)
     ld      (hl),a
@@ -93,7 +95,8 @@ ld_main:
     ld      bc,$200
     call    crc16
 
-    ; check CRC
+    ; check CRC. error 4 if sum doesn't match
+    ld      ix,E4
     ld      a,CMD_BUFFER_PTR_RESET
     call    sendcmd
     ld      a,l
@@ -102,7 +105,6 @@ ld_main:
     out     (IOP_WRITEDAT),a
     ld      a,CMD_FILE_VERIFYCRC
     call    sendcmd
-    ld      ix,E4
     jp      nz,error
 
     pop     hl
@@ -117,12 +119,15 @@ ld_done:
 ;----------------------------------------------------------------
 
 sendcmd:
+    ; initiate command
     out     (IOP_WRITECMD),a
--:
+
+-:  ; wait for command status bit to clear
     in      a,(IOP_STATUS)
     and     4
     jr      nz,{-}
 
+    ; collect return code
     in      a,(IOP_READ)
     and     a
     ret
@@ -130,20 +135,35 @@ sendcmd:
 ;----------------------------------------------------------------
 
 error:
+    ; red bg
     ld      b,COL_DRED
     call    STBCOL
+
+    ; error header + crlf
     ld      hl,E0
     call    DSPLTA
-    call    $10ED
+    call    CRLF
+
+    ; error message
     push    ix
     pop     hl
     call    DSPLTA
-    call    $10ED
+    call    CRLF
+
+    ; error footer
     ld      hl,EX
     call    DSPLTA
 
+    ; wait key press
     call    ACECHI
+
+    ; reset
     jp      0
+
+
+CRLF:
+    ld      a,13
+    jp      DSPCH
 
 
 E0: .byte   "Error:",13
