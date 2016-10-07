@@ -79,6 +79,15 @@ ld_main:
     ; read next 512 bytes
     ; for some reason INIR instruction doesn't work when run in ROM. Timing?
     ld      bc,$0000+IOP_READ
+
+    inir
+    inir
+
+    dec     h
+    dec     h
+-:  dec     l
+    jr      nz,{-}
+
 -:  in      a,(c)
     ld      (hl),a
     inc     hl

@@ -8,7 +8,7 @@
 
 MNKJST  .equ    $7300
 DIRLC   .equ    $7302
-SDIOB   .equ    $7310
+SDIOB   .equ    $7304
 
     .org    $7800
 
@@ -56,7 +56,7 @@ PRHEXA:
     adc     a,$40
     daa
 +:
-    jp    DSPCHA
+    jp      DSPCHA
 
 PRDECA:
     ld      l,a
@@ -93,6 +93,7 @@ PRCRLF:
 ;----------------------------------------------------------------
 
 sendcmd:
+#ifdef USEIO
     out     (IOP_WRITECMD),a
 -:
     in      a,(IOP_STATUS)
@@ -101,6 +102,9 @@ sendcmd:
 
     in      a,(IOP_READ)
     and     a
+#else
+    xor     a
+#endif
     ret
 
 ;----------------------------------------------------------------
